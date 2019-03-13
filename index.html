@@ -130,7 +130,7 @@ function initialize()
   // load human model
 
 
-  for (var i_ = 0; i_ < 2; i_++) {
+  for (var i_ = 0; i_ < 10; i_++) {
     (function(i) {
       new THREE.MTLLoader()
         .setPath( 'test_model/' )
@@ -143,7 +143,9 @@ function initialize()
               object.scale.set(1, 1, 1).multiplyScalar(5);
               object.position.y += 2;
               object.position.x += i - 5;
-              markerRoot1.add( object );
+              if (i < 3) {
+                markerRoot1.add( object );
+              }
             }, onProgress, onError );
         } );
     })(i_);
