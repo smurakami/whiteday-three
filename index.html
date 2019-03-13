@@ -126,63 +126,120 @@ function initialize()
     console.log(err);
   }
 
-
   // load human model
 
+  // for (var i_ = 0; i_ < 10; i_++) {
+  //   (function(i) {
+  //     new THREE.MTLLoader()
+  //       .setPath( 'test_model/' )
+  //       .load( 'smurakami_old.mtl', function ( materials ) {
+  //         materials.preload();
+  //         new THREE.OBJLoader()
+  //           .setMaterials( materials )
+  //           .setPath( 'test_model/' )
+  //           .load( 'smurakami_old.obj', function ( object ) {
+  //             object.scale.set(1, 1, 1).multiplyScalar(5);
+  //             object.position.y += 2;
+  //             object.position.x += i - 5;
+  //             if (i < 3) {
+  //               markerRoot1.add( object );
+  //             }
+  //           }, onProgress, onError );
+  //       } );
+  //   })(i_);
 
-  for (var i_ = 0; i_ < 10; i_++) {
-    (function(i) {
-      new THREE.MTLLoader()
-        .setPath( 'test_model/' )
-        .load( 'smurakami_old.mtl', function ( materials ) {
-          materials.preload();
-          new THREE.OBJLoader()
-            .setMaterials( materials )
-            .setPath( 'test_model/' )
-            .load( 'smurakami_old.obj', function ( object ) {
-              object.scale.set(1, 1, 1).multiplyScalar(5);
-              object.position.y += 2;
-              object.position.x += i - 5;
-              if (i < 3) {
-                markerRoot1.add( object );
-              }
-            }, onProgress, onError );
-        } );
-    })(i_);
-
-  }
+  // }
 
 
+  // put sweets
+  new THREE.OBJLoader()
+    .setPath( 'models/' )
+    .load( 'sweets.obj', function ( object ) {
+
+      let material = new THREE.MeshLambertMaterial({
+        // transparent : true,
+        color: 'red',
+        // colorWrite: false,
+        // map: texture,
+        // side: THREE.BackSide
+      }); 
+
+
+      object.traverse( function ( child ) {
+          if ( child instanceof THREE.Mesh ) {
+              child.material = material;
+          }
+      } );
+
+      markerRoot1.add( object );
+    }, onProgress, onError );
+
+  // put inner
+  new THREE.OBJLoader()
+    .setPath( 'models/' )
+    .load( 'inner.obj', function ( object ) {
+
+      let material = new THREE.MeshLambertMaterial({
+        transparent : true,
+        color: 'green',
+        // map: texture,
+        // side: THREE.BackSide
+      }); 
+
+
+      object.traverse( function ( child ) {
+          if ( child instanceof THREE.Mesh ) {
+              child.material = material;
+          }
+      } );
+
+      markerRoot1.add( object );
+    }, onProgress, onError );
+
+  // put ground
+  (function() {
+    let loader = new THREE.TextureLoader();
+    let geometry = new THREE.PlaneGeometry(1,1,1,1);
+    let material = new THREE.MeshBasicMaterial({
+      map: loader.load( 'images/color-grid.png' ), // for testing placement
+      colorWrite: false
+    });
+    
+    let mesh = new THREE.Mesh( geometry, material );
+    mesh.rotation.x = -Math.PI/2;
+    mesh.scale.set(100, 100, 1);
+    markerRoot1.add(mesh); 
+
+  })()
 
 
   // the inside of the hole
-  let size = 1.1
-  let geometry1 = new THREE.CubeGeometry(size, size, size);
-  let loader = new THREE.TextureLoader();
-  let texture = loader.load( 'images/tiles.jpg' );
-  let material1 = new THREE.MeshLambertMaterial({
-    transparent : true,
-    map: texture,
-    side: THREE.BackSide
-  }); 
+  // let size = 1.1
+  // let geometry1 = new THREE.CubeGeometry(size, size, size);
+  // let loader = new THREE.TextureLoader();
+  // let texture = loader.load( 'images/tiles.jpg' );
+  // let material1 = new THREE.MeshLambertMaterial({
+  //   transparent : true,
+  //   map: texture,
+  //   side: THREE.BackSide
+  // }); 
   
-  mesh1 = new THREE.Mesh( geometry1, material1 );
-  mesh1.position.y = -size/2;
+  // mesh1 = new THREE.Mesh( geometry1, material1 );
+  // mesh1.position.y = -size/2;
+  // markerRoot1.add( mesh1 );
   
-  markerRoot1.add( mesh1 );
+  // // the invisibility cloak (box with a hole)
+  // let geometry0 = new THREE.BoxGeometry(size,size,size);
+  // geometry0.faces.splice(4, 2); // make hole by removing top two triangles
   
-  // the invisibility cloak (box with a hole)
-  let geometry0 = new THREE.BoxGeometry(size,size,size);
-  geometry0.faces.splice(4, 2); // make hole by removing top two triangles
+  // let material0 = new THREE.MeshBasicMaterial({
+  //   colorWrite: false
+  // });
   
-  let material0 = new THREE.MeshBasicMaterial({
-    colorWrite: false
-  });
-  
-  let mesh0 = new THREE.Mesh( geometry0, material0 );
-  mesh0.scale.set(1,1,1).multiplyScalar(1.01);
-  mesh0.position.y = -size/2;
-  markerRoot1.add(mesh0); 
+  // let mesh0 = new THREE.Mesh( geometry0, material0 );
+  // mesh0.scale.set(1,1,1).multiplyScalar(1.01);
+  // mesh0.position.y = -size/2;
+  // markerRoot1.add(mesh0); 
 }
 
 
