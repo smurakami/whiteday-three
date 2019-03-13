@@ -28,12 +28,12 @@
 <script>
 
 var scene, camera, renderer, clock, deltaTime, totalTime;
-
 var arToolkitSource, arToolkitContext;
-
 var markerRoot1;
-
 var mesh1;
+
+var sweets_pos = -2.3;
+var sweets_scale = 1.1;
 
 initialize();
 animate();
@@ -157,11 +157,8 @@ function initialize()
     .load( 'sweets.obj', function ( object ) {
 
       let material = new THREE.MeshLambertMaterial({
-        // transparent : true,
         color: 'red',
         // colorWrite: false,
-        // map: texture,
-        // side: THREE.BackSide
       }); 
 
 
@@ -171,27 +168,55 @@ function initialize()
           }
       } );
 
+      object.position.z = sweets_pos;
+      object.scale.multiplyScalar(sweets_scale);
+
       markerRoot1.add( object );
+
+      window.sweets = object;
+
+      // inner
+      let loader = new THREE.TextureLoader();
+      let texture = loader.load( 'images/tiles.jpg' );
+      inner = object.clone();
+      let innerMaterial = new THREE.MeshLambertMaterial({
+        transparent : true,
+        color: 'black',
+        map: texture,
+        side: THREE.BackSide
+      }); 
+
+      inner.traverse( function ( child ) {
+          if ( child instanceof THREE.Mesh ) {
+              child.material = innerMaterial;
+          }
+      } );
+      inner.scale.multiplyScalar(0.9);
+      inner.position.y += 0.03;
+
+      markerRoot1.add( inner );
+
     }, onProgress, onError );
 
-  // put inner
+  // put inner object
   new THREE.OBJLoader()
     .setPath( 'models/' )
     .load( 'inner.obj', function ( object ) {
 
       let material = new THREE.MeshLambertMaterial({
         transparent : true,
-        color: 'green',
+        color: 'blue',
         // map: texture,
         // side: THREE.BackSide
       }); 
-
 
       object.traverse( function ( child ) {
           if ( child instanceof THREE.Mesh ) {
               child.material = material;
           }
       } );
+
+      object.position.z = sweets_pos;
 
       markerRoot1.add( object );
     }, onProgress, onError );
@@ -207,6 +232,7 @@ function initialize()
     
     let mesh = new THREE.Mesh( geometry, material );
     mesh.rotation.x = -Math.PI/2;
+    mesh.position.y -= 0.01;
     mesh.scale.set(100, 100, 1);
     markerRoot1.add(mesh); 
 
