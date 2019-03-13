@@ -12,6 +12,10 @@
   <script src="threex/threex-artoolkitcontext.js"></script>
   <script src="threex/threex-arbasecontrols.js"></script>
   <script src="threex/threex-armarkercontrols.js"></script>
+
+  <script src="js/MTLLoader.js"></script>
+  <script src="js/OBJLoader.js"></script>
+
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -113,6 +117,41 @@ function initialize()
     type : 'pattern',
     patternUrl : "data/pattern-marker.patt",
   })
+
+  let onProgress = function() {
+    console.log('success');
+  };
+
+  let onError = function(err) {
+    console.log(err);
+  }
+
+
+  // load human model
+
+
+  for (var i_ = 0; i_ < 10; i_++) {
+    (function(i) {
+      new THREE.MTLLoader()
+        .setPath( 'test_model/' )
+        .load( 'smurakami_old.mtl', function ( materials ) {
+          materials.preload();
+          new THREE.OBJLoader()
+            .setMaterials( materials )
+            .setPath( 'test_model/' )
+            .load( 'smurakami_old.obj', function ( object ) {
+              object.scale.set(1, 1, 1).multiplyScalar(5);
+              object.position.y += 2;
+              object.position.x += i - 5;
+              markerRoot1.add( object );
+            }, onProgress, onError );
+        } );
+    })(i_);
+
+  }
+
+
+
 
   // the inside of the hole
   let size = 1.1
