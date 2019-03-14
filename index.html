@@ -36,6 +36,25 @@ var animation_mixers = [];
 var sweets_pos = -2.3;
 var sweets_scale = 1.1;
 
+var audioElem;
+
+// function playSound() {
+//   audioElem = new Audio("song.mp3");
+//   audioElem.onload = function(){
+//     audioElem.play();
+//   };
+//   audioElem.onerror = function(){
+//     console.log('error');
+//   };
+// }
+
+
+// function stopSound(){
+//   audioElem.pause();
+// }
+
+// playSound();
+
 initialize();
 animate();
 
@@ -159,7 +178,7 @@ function initialize()
 
       let material = new THREE.MeshLambertMaterial({
         color: 'red',
-        // colorWrite: false,
+        colorWrite: false,
       }); 
 
 
@@ -198,6 +217,33 @@ function initialize()
       marker_root.add( inner );
 
     }, onProgress, onError );
+
+  new THREE.MTLLoader()
+    .setPath( 'models/' )
+    .load( 'title.mtl', function ( materials ) {
+      materials.preload();
+      new THREE.OBJLoader()
+        .setMaterials( materials )
+      .setPath( 'models/' )
+      .load( 'title.obj', function ( object ) {
+        let material = new THREE.MeshLambertMaterial({
+          color: 'black',
+          // colorWrite: false,
+        }); 
+
+
+        object.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+                child.material = material;
+            }
+        } );
+
+        object.position.x = sweets_pos;
+
+        marker_root.add( object );
+      }, onProgress, onError );
+    }, onError);
+
 
   // put inner heart
   new THREE.MTLLoader()
@@ -329,33 +375,6 @@ function initialize()
   })()
 
 
-  // the inside of the hole
-  // let size = 1.1
-  // let geometry1 = new THREE.CubeGeometry(size, size, size);
-  // let loader = new THREE.TextureLoader();
-  // let texture = loader.load( 'images/tiles.jpg' );
-  // let material1 = new THREE.MeshLambertMaterial({
-  //   transparent : true,
-  //   map: texture,
-  //   side: THREE.BackSide
-  // }); 
-  
-  // mesh1 = new THREE.Mesh( geometry1, material1 );
-  // mesh1.position.y = -size/2;
-  // marker_root.add( mesh1 );
-  
-  // // the invisibility cloak (box with a hole)
-  // let geometry0 = new THREE.BoxGeometry(size,size,size);
-  // geometry0.faces.splice(4, 2); // make hole by removing top two triangles
-  
-  // let material0 = new THREE.MeshBasicMaterial({
-  //   colorWrite: false
-  // });
-  
-  // let mesh0 = new THREE.Mesh( geometry0, material0 );
-  // mesh0.scale.set(1,1,1).multiplyScalar(1.01);
-  // mesh0.position.y = -size/2;
-  // marker_root.add(mesh0); 
 }
 
 
