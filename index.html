@@ -29,9 +29,10 @@
 
 var scene, camera, renderer, clock, deltaTime, totalTime;
 var arToolkitSource, arToolkitContext;
-var markerRoot1;
+var marker_root;
 var mesh1;
 
+var animation_mixers = [];
 var sweets_pos = -2.3;
 var sweets_scale = 1.1;
 
@@ -110,10 +111,10 @@ function initialize()
   ////////////////////////////////////////////////////////////
 
   // build markerControls
-  markerRoot1 = new THREE.Group();
-  markerRoot1.name = 'marker1';
-  scene.add(markerRoot1);
-  let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+  marker_root = new THREE.Group();
+  marker_root.name = 'marker1';
+  scene.add(marker_root);
+  let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, marker_root, {
     type : 'pattern',
     patternUrl : "data/pattern-marker.patt",
   })
@@ -142,7 +143,7 @@ function initialize()
   //             object.position.y += 2;
   //             object.position.x += i - 5;
   //             if (i < 3) {
-  //               markerRoot1.add( object );
+  //               marker_root.add( object );
   //             }
   //           }, onProgress, onError );
   //       } );
@@ -168,10 +169,10 @@ function initialize()
           }
       } );
 
-      object.position.z = sweets_pos;
+      object.position.x = sweets_pos;
       object.scale.multiplyScalar(sweets_scale);
 
-      markerRoot1.add( object );
+      marker_root.add( object );
 
       window.sweets = object;
 
@@ -194,32 +195,121 @@ function initialize()
       inner.scale.multiplyScalar(0.9);
       inner.position.y += 0.03;
 
-      markerRoot1.add( inner );
+      marker_root.add( inner );
 
     }, onProgress, onError );
 
-  // put inner object
-  new THREE.OBJLoader()
+  // put inner heart
+  new THREE.MTLLoader()
     .setPath( 'models/' )
-    .load( 'inner.obj', function ( object ) {
+    .load( 'heart.mtl', function ( materials ) {
+      materials.preload();
+      new THREE.OBJLoader()
+        .setMaterials( materials )
+      .setPath( 'models/' )
+      .load( 'heart.obj', function ( object ) {
 
-      let material = new THREE.MeshLambertMaterial({
-        transparent : true,
-        color: 'blue',
-        // map: texture,
-        // side: THREE.BackSide
-      }); 
+        // Add Animation
+        var duration = 1;
+        var rotationKeyframeTrackJSON = {
+          name: ".rotation[y]",
+          type: "number",
+          times: [0, duration],
+          values: [0, 2 * Math.PI],
+          // interpolation: THREE.InterpolateSmooth
+        };
 
-      object.traverse( function ( child ) {
-          if ( child instanceof THREE.Mesh ) {
-              child.material = material;
-          }
-      } );
+        var clipJSON = {
+          duration: duration,
+          tracks: [
+              rotationKeyframeTrackJSON
+          ]
+        };
+ 
+        var clip = THREE.AnimationClip.parse(clipJSON);
 
-      object.position.z = sweets_pos;
+        var mixer = new THREE.AnimationMixer(object);
+        var action = mixer.clipAction(clip);
+        action.play();
+        animation_mixers.push(mixer);
 
-      markerRoot1.add( object );
-    }, onProgress, onError );
+        object.position.x = sweets_pos;
+
+        marker_root.add( object );
+      }, onProgress, onError );
+    }, onError);
+
+  // put candy canes
+  new THREE.MTLLoader()
+    .setPath( 'models/' )
+    .load( 'candy_cane.mtl', function ( materials ) {
+      materials.preload();
+      new THREE.OBJLoader()
+        .setMaterials( materials )
+      .setPath( 'models/' )
+      .load( 'candy_cane.obj', function ( object ) {
+
+        // Add Animation
+        var duration = 0.5;
+        var rotationKeyframeTrackJSON = {
+          name: ".rotation[y]",
+          type: "number",
+          times: [0, duration],
+          values: [0, 2 * Math.PI],
+          // interpolation: THREE.InterpolateSmooth
+        };
+
+        var clipJSON = {
+          duration: duration,
+          tracks: [
+              rotationKeyframeTrackJSON
+          ]
+        };
+        var clip = THREE.AnimationClip.parse(clipJSON);
+
+        var mixer = new THREE.AnimationMixer(object);
+        var action = mixer.clipAction(clip);
+        action.play();
+        animation_mixers.push(mixer);
+        object.position.x = sweets_pos;
+
+        // たくさん置く
+
+        let num = 16;
+        let radius = 2;
+        for (var i = 0; i < num; i++) {
+          (function(i){
+            var clone = object.clone();
+            var time = 0;
+            let center = {
+              x: clone.position.x,
+              y: clone.position.y,
+            };
+
+            clone.position.x = center.x + radius * Math.cos(Math.PI * 2 / num * i);
+            clone.position.z = center.y + radius * Math.sin(Math.PI * 2 / num * i);
+
+            let animation = {
+              update: function(delta) {
+                time += delta;
+                clone.position.x = center.x + radius * Math.cos(Math.PI * 2 / num * i + Math.PI * time * 0.5);
+                clone.position.z = center.y + radius * Math.sin(Math.PI * 2 / num * i + Math.PI * time * 0.5);
+              }
+            };
+
+            animation_mixers.push(animation);
+
+            var mixer = new THREE.AnimationMixer(clone);
+            var action = mixer.clipAction(clip);
+            action.play();
+            animation_mixers.push(mixer);
+
+            marker_root.add( clone );
+
+          })(i);
+        }
+      }, onProgress, onError );
+    }, onError);
 
   // put ground
   (function() {
@@ -234,7 +324,7 @@ function initialize()
     mesh.rotation.x = -Math.PI/2;
     mesh.position.y -= 0.01;
     mesh.scale.set(100, 100, 1);
-    markerRoot1.add(mesh); 
+    marker_root.add(mesh); 
 
   })()
 
@@ -252,7 +342,7 @@ function initialize()
   
   // mesh1 = new THREE.Mesh( geometry1, material1 );
   // mesh1.position.y = -size/2;
-  // markerRoot1.add( mesh1 );
+  // marker_root.add( mesh1 );
   
   // // the invisibility cloak (box with a hole)
   // let geometry0 = new THREE.BoxGeometry(size,size,size);
@@ -265,7 +355,7 @@ function initialize()
   // let mesh0 = new THREE.Mesh( geometry0, material0 );
   // mesh0.scale.set(1,1,1).multiplyScalar(1.01);
   // mesh0.position.y = -size/2;
-  // markerRoot1.add(mesh0); 
+  // marker_root.add(mesh0); 
 }
 
 
@@ -274,6 +364,10 @@ function update()
   // update artoolkit on every frame
   if ( arToolkitSource.ready !== false )
     arToolkitContext.update( arToolkitSource.domElement );
+
+  for (var mixer of animation_mixers) {
+    mixer.update(0.01);
+  }
 }
 
 
