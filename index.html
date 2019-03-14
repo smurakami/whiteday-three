@@ -226,7 +226,7 @@ function initialize()
       inner.scale.multiplyScalar(0.9);
       inner.position.y += 0.03;
 
-      marker_root.add( inner );
+      // marker_root.add( inner );
 
     }, onProgress, onError );
 
@@ -258,44 +258,44 @@ function initialize()
 
 
   // put inner heart
-  new THREE.MTLLoader()
-    .setPath( 'models/' )
-    .load( 'heart.mtl', function ( materials ) {
-      materials.preload();
-      new THREE.OBJLoader()
-        .setMaterials( materials )
-      .setPath( 'models/' )
-      .load( 'heart.obj', function ( object ) {
+  // new THREE.MTLLoader()
+  //   .setPath( 'models/' )
+  //   .load( 'heart.mtl', function ( materials ) {
+  //     materials.preload();
+  //     new THREE.OBJLoader()
+  //       .setMaterials( materials )
+  //     .setPath( 'models/' )
+  //     .load( 'heart.obj', function ( object ) {
 
-        // Add Animation
-        var duration = 1;
-        var rotationKeyframeTrackJSON = {
-          name: ".rotation[y]",
-          type: "number",
-          times: [0, duration],
-          values: [0, 2 * Math.PI],
-          // interpolation: THREE.InterpolateSmooth
-        };
+  //       // Add Animation
+  //       var duration = 1;
+  //       var rotationKeyframeTrackJSON = {
+  //         name: ".rotation[y]",
+  //         type: "number",
+  //         times: [0, duration],
+  //         values: [0, 2 * Math.PI],
+  //         // interpolation: THREE.InterpolateSmooth
+  //       };
 
-        var clipJSON = {
-          duration: duration,
-          tracks: [
-              rotationKeyframeTrackJSON
-          ]
-        };
+  //       var clipJSON = {
+  //         duration: duration,
+  //         tracks: [
+  //             rotationKeyframeTrackJSON
+  //         ]
+  //       };
  
-        var clip = THREE.AnimationClip.parse(clipJSON);
+  //       var clip = THREE.AnimationClip.parse(clipJSON);
 
-        var mixer = new THREE.AnimationMixer(object);
-        var action = mixer.clipAction(clip);
-        action.play();
-        animation_mixers.push(mixer);
+  //       var mixer = new THREE.AnimationMixer(object);
+  //       var action = mixer.clipAction(clip);
+  //       action.play();
+  //       animation_mixers.push(mixer);
 
-        object.position.x = sweets_pos;
+  //       object.position.x = sweets_pos;
 
-        marker_root.add( object );
-      }, onProgress, onError );
-    }, onError);
+  //       marker_root.add( object );
+  //     }, onProgress, onError );
+  //   }, onError);
 
   // put candy canes
   new THREE.MTLLoader()
