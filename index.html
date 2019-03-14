@@ -300,12 +300,12 @@ function initialize()
   // put candy canes
   new THREE.MTLLoader()
     .setPath( 'models/' )
-    .load( 'candy_cane.mtl', function ( materials ) {
+    .load( 'heart.mtl', function ( materials ) {
       materials.preload();
       new THREE.OBJLoader()
         .setMaterials( materials )
       .setPath( 'models/' )
-      .load( 'candy_cane.obj', function ( object ) {
+      .load( 'heart.obj', function ( object ) {
 
         // Add Animation
         var duration = 0.5;
@@ -330,6 +330,7 @@ function initialize()
         action.play();
         animation_mixers.push(mixer);
         object.position.x = sweets_pos;
+        object.scale.multiplyScalar(0.7);
 
         // たくさん置く
 
