@@ -25,6 +25,8 @@
   Based on the AR.js library and examples created by Jerome Etienne: https://github.com/jeromeetienne/AR.js/
 -->
 
+<audio id="song" src="song.mp3" >
+
 <script>
 
 var scene, camera, renderer, clock, deltaTime, totalTime;
@@ -36,7 +38,17 @@ var animation_mixers = [];
 var sweets_pos = -2.3;
 var sweets_scale = 1.1;
 
-var audioElem;
+// var audioElem;
+
+var song = document.getElementById('song');
+
+setTimeout(
+  function() {
+    song.play();
+
+  }
+  , 2000);
+
 
 // function playSound() {
 //   audioElem = new Audio("song.mp3");
